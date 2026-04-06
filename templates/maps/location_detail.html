@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ location.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Карта с маркером -->
+    <div class="col-lg-7 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-geo-alt"></i> {{ location.title }}</h4>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="width: 100%; height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Информация о месте -->
+    <div class="col-lg-5">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Информация</h5>
+            </div>
+            <div class="card-body">
+                <h6>Описание:</h6>
+                <p class="mb-3">{{ location.description|linebreaks }}</p>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <h6>Координаты:</h6>
+                        <div class="alert alert-light">
+                            <strong>Широта:</strong> {{ location.latitude|floatformat:6 }}<br>
+                            <strong>Долгота:</strong> {{ location.longitude|floatformat:6 }}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h6>Даты:</h6>
+                        <div class="alert alert-light">
+                            <strong>Создано:</strong> {{ location.created_at|date:"d.m.Y H:i" }}<br>
+                            <strong>Обновлено:</strong> {{ location.updated_at|date:"d.m.Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4 d-flex gap-2">
+                    <a href="{% url 'edit_location' location.id %}" class="btn btn-warning flex-fill">
+                        <i class="bi bi-pencil"></i> Редактировать
+                    </a>
+                    <a href="{% url 'delete_location' location.id %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Действия -->
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-share"></i> Поделиться</h5>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="shareUrl" 
+                           value="{{ request.build_absolute_uri }}" readonly>
+                    <button class="btn btn-outline-secondary" type="button" onclick="copyShareUrl()">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </div>
+                
+                <div class="alert alert-info small">
+                    <i class="bi bi-lightbulb"></i>
+                    <strong>Совет:</strong> Используйте координаты в других картографических сервисах
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Leaflet.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Карта с одним маркером
+    var map = L.map('map').setView([{{ location.latitude }}, {{ location.longitude }}], 15);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
+    
+    // Добавляем маркер
+    L.marker([{{ location.latitude }}, {{ location.longitude }}])
+        .addTo(map)
+        .bindPopup('<strong>{{ location.title|escapejs }}</strong>')
+        .openPopup();
+    
+    // Функция копирования ссылки
+    function copyShareUrl() {
+        var copyText = document.getElementById("shareUrl");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Для мобильных устройств
+        navigator.clipboard.writeText(copyText.value);
+        
+        // Временное уведомление
+        var btn = event.target.closest('button');
+        var originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check"></i> Скопировано!';
+        btn.classList.remove('btn-outline-secondary');
+        btn.classList.add('btn-success');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('btn-success');
+            btn.classList.add('btn-outline-secondary');
+        }, 2000);
+    }
+</script>
+{% endblock %}

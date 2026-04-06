@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-{% if location %}warning{% else %}success{% endif %} text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-{% if location %}pencil{% else %}plus-circle{% endif %}"></i>
+                    {{ title }}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Название *</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger small">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="text-danger small">{{ form.description.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Широта *</label>
+                            {{ form.latitude }}
+                            <div class="form-text">Например: 55.755826</div>
+                            {% if form.latitude.errors %}
+                                <div class="text-danger small">{{ form.latitude.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Долгота *</label>
+                            {{ form.longitude }}
+                            <div class="form-text">Например: 37.617300</div>
+                            {% if form.longitude.errors %}
+                                <div class="text-danger small">{{ form.longitude.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle"></i>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> На карту
+                        </a>
+                        <button type="submit" class="btn btn-{% if location %}warning{% else %}success{% endif %}">
+                            <i class="bi bi-check-circle"></i> Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Если есть координаты в URL, заполняем поля
+    const urlParams = new URLSearchParams(window.location.search);
+    const lat = urlParams.get('lat');
+    const lon = urlParams.get('lon');
+
+    if (lat && lon) {
+        document.getElementById('id_latitude').value = lat;
+        document.getElementById('id_longitude').value = lon;
+
+        // Опционально: получаем адрес по координатам
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.display_name) {
+                    const address = data.display_name.split(',')[0];
+                    if (address && !document.getElementById('id_title').value) {
+                        document.getElementById('id_title').value = address;
+                    }
+                }
+            })
+            .catch(err => console.log('Геокодинг не доступен'));
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Заявка на подключение 1С{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-plus-circle"></i> 
+                    Заявка на подключение дистрибутива 1С
+                </h4>
+            </div>
+            <div class="card-body">
+                                <div class="mb-3 text-end">
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="fillTestData()">
+                        <i class="bi bi-bug"></i> Заполнить тестовыми данными
+                    </button>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Название предприятия *</label>
+                            {{ form.company_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Сфера деятельности *</label>
+                            {{ form.business_type }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Описание деятельности</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Контактное лицо *</label>
+                            {{ form.contact_person }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Телефон *</label>
+                            {{ form.phone }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        {{ form.email }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Широта *</label>
+                            {{ form.latitude }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Долгота *</label>
+                            {{ form.longitude }}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Адрес *</label>
+                        {{ form.address }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Город *</label>
+                        {{ form.city }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Количество сотрудников</label>
+                        {{ form.employees_count }}
+                    </div>
+                    
+                    <div class="card mb-3">
+                        <div class="card-header bg-light">
+                            <strong>Какие программы 1С нужны?</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        {{ form.need_1c_buh }}
+                                        <label class="form-check-label">1С:Бухгалтерия</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.need_1c_trade }}
+                                        <label class="form-check-label">1С:Управление торговлей</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        {{ form.need_1c_salary }}
+                                        <label class="form-check-label">1С:Зарплата и кадры</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.need_cloud }}
+                                        <label class="form-check-label">Облачная версия (аренда)</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Комментарий</label>
+                        {{ form.comment }}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> На карту
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-send"></i> Отправить заявку
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mt-3">
+            <i class="bi bi-info-circle"></i>
+            После отправки заявки наш специалист свяжется с вами в течение 24 часов
+        </div>
+    </div>
+</div>
+
+<script>
+    function fillTestData() {
+        // Заполняем тестовыми данными
+        document.getElementById('id_company_name').value = 'ООО Тестовая компания';
+        document.getElementById('id_business_type').value = 'services';
+        document.getElementById('id_description').value = 'Тестовое описание деятельности компании. Занимаемся разработкой программного обеспечения и консалтингом.';
+        document.getElementById('id_contact_person').value = 'Иван Петров';
+        document.getElementById('id_phone').value = '+7 (999) 123-45-67';
+        document.getElementById('id_email').value = 'test@example.com';
+        document.getElementById('id_address').value = 'г. Абакан';
+        document.getElementById('id_city').value = 'Абакан';
+        document.getElementById('id_employees_count').value = '15';
+        document.getElementById('id_need_1c_buh').checked = true;
+        document.getElementById('id_need_1c_trade').checked = true;
+        document.getElementById('id_comment').value = 'Тестовая заявка для демонстрации функционала. Хотим подключить 1С в ближайшее время.';
+
+        // Если нет координат, устанавливаем координаты Москвы
+        if (!document.getElementById('id_latitude').value) {
+            document.getElementById('id_latitude').value = '53.7158';
+            document.getElementById('id_longitude').value = '91.447300';
+        }
+
+        // Показываем уведомление
+        alert('Форма заполнена тестовыми данными. Вы можете отредактировать их перед отправкой.');
+    }
+
+    // Если координаты уже переданы из URL, показываем подсказку
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('lat') && urlParams.has('lon')) {
+        console.log('Координаты получены с карты');
+    }
+</script>
+{% endblock %}

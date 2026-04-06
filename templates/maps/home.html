@@ -1,0 +1,510 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Карта дистрибуции 1С{% endblock %}
+
+{% block content %}
+<div id="map-section"></div>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header" style="background-color: #ffde00; color: #7a1100;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-map"></i> Карта дистрибуции 1С
+                    </h4>
+                    <div>
+                        <button class="btn btn-sm btn-light me-1" onclick="toggleLayer('clients')">
+                            🟢 Клиенты ({{ clients|length }})
+                        </button>
+                        <button class="btn btn-sm btn-light" onclick="toggleLayer('requests')">
+                            🟡 Заявки ({{ requests|length }})
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="map" style="height: 550px;"></div>
+            </div>
+            <div class="card-footer bg-light">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <span class="badge bg-success me-2">🟢</span>
+                        Активные клиенты
+                    </div>
+                    <div class="col-md-4">
+                        <span class="badge bg-warning me-2">🟡</span>
+                        Заявки на подключение
+                    </div>
+                    <div class="col-md-4">
+                        <span class="badge bg-primary me-2">🔵</span>
+                        Ваша заявка
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Блок для добавления заявки -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Оставить заявку</h5>
+            </div>
+            <div class="card-body">
+                {% if user.is_authenticated %}
+                    {% if user_request %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-check-circle"></i>
+                            У вас есть активная заявка #{{ user_request.id }}
+                            <a href="{% url 'request_detail' user_request.id %}" class="alert-link">
+                                Статус заявки →
+                            </a>
+                        </div>
+                        <div class="mt-2">
+                            <a href="{% url 'my_requests' %}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-list-ul"></i> Мои заявки
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">
+                            Отметьте на карте местоположение вашего предприятия
+                        </p>
+                        <a href="{% url 'add_request' %}" class="btn btn-success w-100">
+                            Оставить заявку
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted">
+                        Чтобы оставить заявку, войдите или зарегистрируйтесь
+                    </p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+                        <a href="{% url 'register' %}" class="btn btn-outline-success">Регистрация</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Статистика</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Наши клиенты:</span>
+                        <strong>{{ clients|length }}</strong>
+                    </div>
+                    <div class="progress mt-1">
+                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="d-flex justify-content-between">
+                        <span>Активные заявки:</span>
+                        <strong>{{ requests|length }}</strong>
+                    </div>
+                    <div class="progress mt-1">
+                        <div class="progress-bar bg-warning" style="width: {{ requests|length }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Последние заявки -->
+        {% if requests|slice:":3" %}
+        <div class="card shadow">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> Последние заявки</h5>
+            </div>
+            <div class="card-body">
+                {% for req in requests|slice:":3" %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ req.company_name }}</strong>
+                            <span class="badge bg-{{ req.get_status_color }}">
+                                {{ req.get_status_display_ru }}
+                            </span>
+                        </div>
+                        <small class="text-muted">
+                            {{ req.city }} • {{ req.created_at|date:"d.m.Y" }}
+                        </small>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ========== ЛИЦЕНЗИИ НА ПРОГРАММЫ 1С ========== -->
+<div id="licenses-section"></div>
+<div class="row mt-3">
+    <div class="col-12">
+        <h2 class="text-center mb-4" style="color: #7a1100;">Программы 1С</h2>
+        <p class="text-center text-muted mb-3">Лицензионные программы для вашего бизнеса</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    {% for license in licenses %}
+    <div class="col-md-6 col-lg-5">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-start">
+                    <!-- Изображение или иконка -->
+                    <div class="flex-shrink-0 me-3">
+                        <img src="{{ license.image.url }}" width="70" height="70">
+                    </div>
+                    <!-- Наименование и цена -->
+                    <div class="flex-grow-1">
+                        <h5 class="card-title">{{ license.name }}</h5>
+                        <div class="mt-1">
+                            {% if license.discount > 0 %}
+                                <span class="badge bg-danger">-{{ license.discount }}%</span>
+                            {% endif %}
+                            <div class="mt-1">
+                                <span class="h5" style="color: #7a1100;">{{ license.price|floatformat:0 }} ₽</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Описание -->
+                <div class="mt-3">
+                    <p class="card-text small">{{ license.description|truncatechars:120 }}</p>
+                    <button class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#licenseModal{{ license.id }}">
+                        Подробнее
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для лицензии -->
+    <div class="modal fade" id="licenseModal{{ license.id }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #ffde00; color: #333333;">
+                    <h5 class="modal-title">{{ license.name }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="{{ license.image.url }}" width="200" height="200">
+                        </div>
+                        <div class="col-md-8">
+                            <h4>Описание сервиса</h4>
+                            <p>{{ license.description }}</p>
+                            <h5>Цена</h5>
+                            <p>{{ license.price|floatformat:0 }} ₽ </p>
+                                {% if license.discount > 0 %}
+                                    <br><strong>Скидка:</strong> {{ license.discount }}%
+                                {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url 'add_request' %}" class="btn" style="background-color: #7a1100; color: white;">Оставить заявку</a>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- ========== СЕРВИСЫ 1С ========== -->
+<div id="services-section"></div>
+<div class="row mt-3">
+    <div class="col-12">
+        <h2 class="text-center mb-3" style="color: #7a1100;">Сервисы 1С</h2>
+        <p class="text-center text-muted mb-3">Полезные сервисы для автоматизации вашего бизнеса</p>
+    </div>
+</div>
+
+{% for category in service_categories %}
+    {% with category_services=category.service_set.all %}
+        {% if category_services %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="mb-3">{{ category.name }}</h4>
+                </div>
+            </div>
+            <div class="row">
+                {% for service in category_services %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-shrink-0 me-3">
+                                    <img src="{{ service.image.url }}" width="70" height="70">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title">{{ service.name }}</h5>
+                                    <div class="mt-1">
+                                        {% if service.discount > 0 %}
+                                            <span class="badge bg-danger">-{{ service.discount }}%</span>
+                                        {% endif %}
+                                        <div class="mt-1">
+                                            <span class="h6" style="color: #7a1100;">{{ service.get_price_display }} </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <p class="card-text small">{{ service.description|truncatechars:120 }}</p>
+                                <button class="btn btn-sm btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#serviceModal{{ service.id }}">
+                                    Подробнее
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Модальное окно для сервиса -->
+                <div class="modal fade" id="serviceModal{{ service.id }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header" style="background-color: #ffde00; color: #333333;">
+                                <h5 class="modal-title">{{ service.name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-4 text-center">
+                                        <img src="{{ service.image.url }}" width="200" height="200">
+                                    </div>
+                                    <div class="col-md-8">
+                                        <h4>Описание сервиса</h4>
+                                        <p>{{ service.description }}</p>
+                                        <h5>Стоимость</h5>
+                                        <p>{{ service.price|floatformat:0 }} ₽</p>
+                                            {% if service.discount > 0 %}
+                                                <br><strong>Скидка:</strong> {{ service.discount }}%
+                                            {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a href="{% url 'add_request' %}" class="btn" style="background-color: #7a1100; color: white;">Подключить</a>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+{% endfor %}
+
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://api-maps.yandex.ru/2.1/?apikey={{ YANDEX_MAPS_API_KEY }}&lang=ru_RU"></script>
+
+<script>
+    let map;
+    let markers = [];
+
+    function initMap() {
+        map = new ymaps.Map('map', {
+            center: [53.720853, 91.433193],
+            zoom: 10,
+            controls: ['zoomControl', 'fullscreenControl']
+        });
+
+        addAllMarkers();
+
+        // Обработка клика по карте для создания заявки
+        map.events.add('click', function (e) {
+            var coords = e.get('coords');
+            if (confirm(`Добавить заявку по координатам: ${coords[0].toFixed(6)}, ${coords[1].toFixed(6)}?`)) {
+                window.location.href = `{% url 'add_request' %}?lat=${coords[0].toFixed(6)}&lon=${coords[1].toFixed(6)}`;
+            }
+        });
+    }
+
+    function addAllMarkers() {
+        // Очищаем старые маркеры
+        if (markers.length > 0) {
+            markers.forEach(marker => {
+                map.geoObjects.remove(marker);
+            });
+            markers = [];
+        }
+
+        // ========== ЗЕЛЕНЫЕ МАРКЕРЫ - КЛИЕНТЫ (Location) ==========
+        const clients = [
+            {% for client in clients %}
+                {
+                    lat: {{ client.latitude }},
+                    lon: {{ client.longitude }},
+                    title: "{{ client.title|escapejs }}",
+                    description: "{{ client.description|escapejs }}",
+                    editUrl: "{% url 'edit_location' client.id %}"
+                },
+            {% endfor %}
+        ];
+
+        clients.forEach(client => {
+            if (client.lat && client.lon && !isNaN(client.lat) && !isNaN(client.lon)) {
+                // Зеленый маркер для клиентов
+                var marker = new ymaps.Placemark(
+                    [client.lat, client.lon],
+                    {
+                        balloonContent: `
+                            <div style="min-width: 250px;">
+                                <h6><strong>${client.title}</strong></h6>
+                                <p>${client.description || 'Нет описания'}</p>
+                                <a href="${client.editUrl}" class="btn btn-sm btn-warning">Редактировать</a>
+                            </div>
+                        `,
+                        hintContent: client.title
+                    },
+                    {
+                        iconLayout: ymaps.templateLayoutFactory.createClass(
+                            '<div style="background-color: #2ecc71; ' +
+                                        'width: 24px; height: 24px; ' +
+                                        'border-radius: 50%; ' +
+                                        'border: 3px solid #333333; ' +
+                                        'box-shadow: 0 2px 8px rgba(0,0,0,0.4); ' +
+                                        'cursor: pointer;">' +
+                             '</div>'
+                        )
+                    }
+                );
+                map.geoObjects.add(marker);
+                markers.push(marker);
+            }
+        });
+
+        // ========== МАРКЕРЫ ЗАЯВОК (DistributionRequest) ==========
+        const requests = [
+            {% for req in requests %}
+                {
+                    lat: {{ req.latitude }},
+                    lon: {{ req.longitude }},
+                    company_name: "{{ req.company_name|escapejs }}",
+                    contact_person: "{{ req.contact_person|escapejs }}",
+                    phone: "{{ req.phone|escapejs }}",
+                    business_type: "{{ req.get_business_type_display|escapejs }}",
+                    status: "{{ req.status|escapejs }}",
+                    status_display: "{{ req.get_status_display|escapejs }}",
+                    detailUrl: "{% url 'request_detail' req.id %}",
+                    addRequestUrl: "{% url 'add_request' %}?lat={{ req.latitude }}&lon={{ req.longitude }}",
+                    id: {{ req.id }}
+                },
+            {% endfor %}
+        ];
+
+        // Определяем ID своей заявки
+        {% if user.is_authenticated and user_request %}
+            const userRequestId = {{ user_request.id }};
+        {% else %}
+            const userRequestId = null;
+        {% endif %}
+
+        requests.forEach(request => {
+            if (request.lat && request.lon && !isNaN(request.lat) && !isNaN(request.lon)) {
+                const isUserRequest = (userRequestId === request.id);
+
+                // Определяем цвет маркера в зависимости от статуса
+                let markerColorHex = '';
+
+                if (request.status === 'pending') {
+                    markerColorHex = '#ea580c';   // темно-оранжевый
+                } else if (request.status === 'in_work') {
+                    markerColorHex = '#f97316';   // оранжевый
+                } else if (request.status === 'completed') {
+                    markerColorHex = '#2ecc71';   // зеленый
+                } else if (request.status === 'rejected') {
+                    markerColorHex = '#ef4444';   // красный
+                } else {
+                    markerColorHex = '#3b82f6';   // синий
+                }
+
+                // Если это заявка текущего пользователя, делаем ее синей
+                if (isUserRequest) {
+                    markerColorHex = '#3b82f6';
+                }
+
+                // Определяем иконку внутри маркера
+                let markerIcon = '';
+                if (request.status === 'pending') {
+                    markerIcon = '!';
+                } else if (request.status === 'in_work') {
+                    markerIcon = '⏱';
+                } else if (request.status === 'completed') {
+                    markerIcon = '✓';
+                } else if (request.status === 'rejected') {
+                    markerIcon = '✗';
+                } else {
+                    markerIcon = '●';
+                }
+
+                // Если это заявка текущего пользователя, ставим другую иконку
+                if (isUserRequest) {
+                    markerIcon = '👤';
+                }
+
+                var marker = new ymaps.Placemark(
+                    [request.lat, request.lon],
+                    {
+                        balloonContent: `
+                            <div style="min-width: 280px;">
+                                <h6><strong>${request.company_name}</strong></h6>
+                                <p><strong>Контактное лицо:</strong> ${request.contact_person}</p>
+                                <p><strong>Телефон:</strong> ${request.phone}</p>
+                                <p><strong>Тип бизнеса:</strong> ${request.business_type}</p>
+                                <p><strong>Статус:</strong> ${request.status_display}</p>
+                                ${isUserRequest ?
+                                    `<a href="${request.detailUrl}" class="btn btn-sm btn-info mt-2">Подробнее</a>` :
+                                    `<a href="${request.addRequestUrl}" class="btn btn-sm btn-success mt-2">Тоже хочу!</a>`
+                                }
+                            </div>
+                        `,
+                        hintContent: `${request.company_name} (${request.status_display})`
+                    },
+                    {
+                        iconLayout: ymaps.templateLayoutFactory.createClass(
+                            '<div style="background-color: ' + markerColorHex + '; ' +
+                                        'width: 24px; height: 24px; ' +
+                                        'border-radius: 50%; ' +
+                                        'border: 3px solid #333333; ' +
+                                        'box-shadow: 0 2px 8px rgba(0,0,0,0.4); ' +
+                                        'cursor: pointer; ' +
+                                        'display: flex; ' +
+                                        'align-items: center; ' +
+                                        'justify-content: center; ' +
+                                        'font-size: 12px; ' +
+                                        'font-weight: bold; ' +
+                                        'color: white;">' +
+                                '<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">' + markerIcon + '</span>' +
+                            '</div>'
+                        )
+                    }
+                );
+                map.geoObjects.add(marker);
+                markers.push(marker);
+            }
+        });
+
+        console.log(`Добавлено маркеров: клиентов - ${clients.length}, заявок - ${requests.length}`);
+    }
+
+    function panToMarker(lat, lon) {
+        if (map && !isNaN(lat) && !isNaN(lon)) {
+            map.panTo([lat, lon], { flying: true, duration: 1000 });
+            map.setZoom(15);
+        }
+    }
+
+    ymaps.ready(initMap);
+</script>
+{% endblock %}

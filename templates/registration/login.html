@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Вход в систему{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <!-- Заголовок: желтый фон, темно-серый текст -->
+            <div class="card-header text-center" style="background-color: #ffde00; color: #333333;">
+                <h4 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Вход</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" name="username" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" name="password" class="form-control" required>
+                    </div>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Неверное имя пользователя или пароль.
+                        </div>
+                    {% endif %}
+
+                    <!-- Кнопка: бордовый фон, белый текст -->
+                    <button type="submit" class="btn w-100 mb-3" style="background-color: #7a1100; color: #ffffff; border: none;">
+                        <i class="bi bi-box-arrow-in-right"></i> Войти
+                    </button>
+
+                    <div class="text-center">
+                        <a href="{% url 'register' %}" class="text-decoration-none" style="color: #7a1100;">
+                            Зарегистрироваться
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

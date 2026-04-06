@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Регистрация{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="mb-0"><i class="bi bi-person-plus"></i> Регистрация</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Имя пользователя</label>
+                        <input type="text" name="username" class="form-control" required 
+                               placeholder="Придумайте логин">
+                        <div class="form-text">Только буквы, цифры и @/./+/-/_</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Пароль</label>
+                        <input type="password" name="password1" class="form-control" required
+                               placeholder="Введите пароль">
+                        <div class="form-text">
+                            Пароль должен содержать минимум 8 символов, не быть слишком простым.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Подтверждение пароля</label>
+                        <input type="password" name="password2" class="form-control" required
+                               placeholder="Повторите пароль">
+                    </div>
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-success w-100 mb-3">
+                        <i class="bi bi-person-plus"></i> Зарегистрироваться
+                    </button>
+                    
+                    <div class="text-center">
+                        <a href="{% url 'login' %}" class="text-decoration-none">
+                            Уже есть аккаунт? Войти
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

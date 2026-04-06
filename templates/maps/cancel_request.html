@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Отмена заявки{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Отмена заявки</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="bi bi-trash display-1 text-danger"></i>
+                </div>
+                
+                <h5>Вы уверены, что хотите отменить заявку?</h5>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>Заявка #{{ request.id }}</strong><br>
+                    {{ request.company_name }}<br>
+                    <small>{{ request.address }}</small>
+                </div>
+                
+                <p class="text-muted">Отменить заявку можно только до начала обработки.</p>
+                
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'request_detail' request.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Вернуться
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-check-circle"></i> Да, отменить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

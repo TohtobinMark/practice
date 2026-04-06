@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Удаление маркера{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Подтверждение удаления</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="bi bi-trash display-1 text-danger"></i>
+                </div>
+                
+                <h5>Вы уверены, что хотите удалить маркер?</h5>
+                
+                <div class="alert alert-info mt-3">
+                    <strong>"{{ location.title }}"</strong><br>
+                    <small>{{ location.description|truncatechars:100 }}</small><br>
+                    <small class="text-muted">
+                        Координаты: {{ location.latitude|floatformat:6 }}, {{ location.longitude|floatformat:6 }}
+                    </small>
+                </div>
+                
+                <p class="text-muted">Это действие нельзя отменить.</p>
+                
+                <form method="post" class="mt-4">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Отмена
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Да, удалить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

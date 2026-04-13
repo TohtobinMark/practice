@@ -1,0 +1,184 @@
+{% if all_items %}
+    <!-- Заголовок для лицензий -->
+    {% if items_has_licenses %}
+    <div id="licenses-section"></div>
+    <div class="row mt-3">
+        <div class="col-12">
+            <h2 class="text-center mb-4" style="color: #7a1100;">Программы 1С</h2>
+            <p class="text-center text-muted mb-3">Лицензионные программы для вашего бизнеса</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Блок лицензий -->
+    <div class="row">
+        {% for item in all_items %}
+            {% if item.item_type == 'license' %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm"
+                     style="cursor: pointer; transition: transform 0.2s;"
+                     onmouseover="this.style.transform='translateY(-5px)'"
+                     onmouseout="this.style.transform='translateY(0)'"
+                     data-bs-toggle="modal"
+                     data-bs-target="#edit-license-{{ item.id }}">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0 me-3">
+                                {% if item.image %}
+                                    <img src="{{ item.image.url }}" width="70" height="70" style="object-fit: cover; border-radius: 8px;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                         style="width: 70px; height: 70px; border-radius: 8px;">
+                                        <i class="bi bi-box" style="font-size: 2rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mt-1">{{ item.name }}</h5>
+
+                                <div class="mt-2">
+                                    {% if item.discount > 0 %}
+                                        <span class="badge bg-danger">-{{ item.discount }}%</span>
+                                    {% endif %}
+                                    <div class="mt-1">
+                                        <span class="h5" style="color: #7a1100;">{{ item.get_price_display }}</span>
+                                        {% if item.price > 0 and item.discount > 0 %}
+                                            <small class="text-muted text-decoration-line-through ms-2">
+                                                {{ item.price|floatformat:0 }} ₽
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+    <p class="card-text small text-muted">{{ item.description|truncatechars:100 }}</p>
+    <div class="d-flex justify-content-between align-items-center mt-2">
+        <small class="text-muted">
+            <i class="bi bi-info-circle"></i> Нажмите для редактирования
+        </small>
+        {% if user.is_staff %}
+        <button type="button" class="btn btn-sm btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#delete-license-{{ item.id }}"
+                onclick="event.stopPropagation()">
+            <i class="bi bi-trash"></i> Удалить
+        </button>
+        {% endif %}
+    </div>
+</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модалка для лицензии -->
+            {% if user.is_staff %}
+                {% include 'maps/modals.html' with item=item type='license' %}
+            {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    <!-- Заголовок для сервисов -->
+    {% if items_has_services %}
+    <div id="services-section"></div>
+    <div class="row mt-5">
+        <div class="col-12">
+            <h2 class="text-center mb-3" style="color: #7a1100;">Сервисы 1С</h2>
+            <p class="text-center text-muted mb-3">Полезные сервисы для автоматизации вашего бизнеса</p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Блок сервисов -->
+    <div class="row">
+        {% for item in all_items %}
+            {% if item.item_type == 'service' %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm"
+                     style="cursor: pointer; transition: transform 0.2s;"
+                     onmouseover="this.style.transform='translateY(-5px)'"
+                     onmouseout="this.style.transform='translateY(0)'"
+                     data-bs-toggle="modal"
+                     data-bs-target="#edit-service-{{ item.id }}">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start">
+                            <div class="flex-shrink-0 me-3">
+                                {% if item.image %}
+                                    <img src="{{ item.image.url }}" width="70" height="70" style="object-fit: cover; border-radius: 8px;">
+                                {% else %}
+                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                         style="width: 70px; height: 70px; border-radius: 8px;">
+                                        <i class="bi bi-box" style="font-size: 2rem;"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="flex-grow-1">
+                                {% if item.category %}
+                                    <span class="badge bg-secondary mb-2">{{ item.category.name }}</span>
+                                {% endif %}
+                                <h5 class="card-title mt-1">{{ item.name }}</h5>
+
+                                <div class="mt-2">
+                                    {% if item.discount > 0 %}
+                                        <span class="badge bg-danger">-{{ item.discount }}%</span>
+                                    {% endif %}
+                                    <div class="mt-1">
+                                        <span class="h5" style="color: #7a1100;">{{ item.get_price_display }}</span>
+                                        {% if item.price > 0 and item.discount > 0 %}
+                                            <small class="text-muted text-decoration-line-through ms-2">
+                                                {{ item.price|floatformat:0 }} ₽
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <p class="card-text small text-muted">{{ item.description|truncatechars:100 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle"></i> Нажмите для редактирования
+                                </small>
+                                {% if user.is_staff %}
+                                <button type="button" class="btn btn-sm btn-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#delete-service-{{ item.id }}"
+                                        onclick="event.stopPropagation()">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Модалка для сервиса -->
+            {% if user.is_staff %}
+                {% include 'maps/modals.html' with item=item type='service' %}
+            {% endif %}
+            {% endif %}
+        {% endfor %}
+    </div>
+
+    {% if search or category_filter or sort_price %}
+        <div class="row mt-3">
+            <div class="col-12 text-center">
+                <span class="badge bg-info">Найдено: {{ all_items|length }} результатов</span>
+            </div>
+        </div>
+    {% endif %}
+{% else %}
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle"></i> Ничего не найдено по вашему запросу
+            </div>
+        </div>
+    </div>
+{% endif %}

@@ -1,14 +1,15 @@
+<!-- templates/registration/login.html -->
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
 {% block title %}Вход в систему{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card shadow">
-            <!-- Заголовок: желтый фон, темно-серый текст -->
-            <div class="card-header text-center" style="background-color: #ffde00; color: #333333;">
+<div class="row justify-content-center align-items-stretch">
+    <!-- Левая колонка - форма входа -->
+    <div class="col-md-6 col-lg-5 mb-4 mb-md-0">
+        <div class="card shadow h-100">
+            <div class="card-header text-center" style="background-color: #e0bc00; color: #333333;">
                 <h4 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Вход</h4>
             </div>
             <div class="card-body">
@@ -31,7 +32,6 @@
                         </div>
                     {% endif %}
 
-                    <!-- Кнопка: бордовый фон, белый текст -->
                     <button type="submit" class="btn w-100 mb-3" style="background-color: #7a1100; color: #ffffff; border: none;">
                         <i class="bi bi-box-arrow-in-right"></i> Войти
                     </button>
@@ -45,5 +45,37 @@
             </div>
         </div>
     </div>
+
+    <!-- Правая колонка - гостевой доступ и демо -->
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow h-100">
+            <div class="card-body">
+                <div class="alert alert-info mt-2 small">
+                    <i class="bi bi-info-circle"></i> <strong>Гостевой доступ:</strong><br>
+                    Вы можете просматривать карту, лицензии и сервисы без регистрации.
+                    Для создания заявок необходимо <a href="{% url 'register' %}" class="alert-link">зарегистрироваться</a>.
+                </div>
+
+                <div class="text-center mt-4 pt-2">
+                    <div class="alert alert-light text-center">
+                        <strong>Демо-доступ:</strong><br>
+                        Логин: <code>demo</code> | Пароль: <code>demopassword123</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+<style>
+    .alert-light {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    code {
+        background-color: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+</style>
 {% endblock %}

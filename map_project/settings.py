@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/6.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
-
+from django.contrib.messages import constants as messages
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -56,7 +56,18 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 YANDEX_MAPS_API_KEY = '23da1e5f-e900-482d-8a1f-a9ca191b28ca'
+AUTH_USER_MODEL = 'maps.User'
 
+# Настройки для гостевого доступа
+GUEST_ACCESS_ENABLED = True
+
+MESSAGE_TAGS = {
+    messages.DEBUG: 'info',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -96,8 +107,8 @@ WSGI_APPLICATION = 'map_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'rr',
-'USER': 'postgres',
+        'NAME': 'rr2',
+        'USER': 'postgres',
         'PASSWORD': '1',
         'HOST': 'localhost',
         'PORT': '5432'
@@ -122,7 +133,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 

@@ -1,0 +1,63 @@
+<!-- templates/maps/admin_requests.html -->
+{% extends 'base.html' %}
+
+{% block title %}Управление заявками - Админ панель{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header" style="background-color: #7a1100; color: white;">
+                <h4 class="mb-0">Управление заявками</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Компания</th>
+                                <th>Контакт</th>
+                                <th>Дата</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                            <tr class="{% if req.status == 'pending' %}table-warning{% elif req.status == 'in_work' %}table-info{% endif %}">
+                                <td>#{{ req.id }}</td>
+                                <td>
+                                    <strong>{{ req.company_name }}</strong>
+                                    {% if req.created_at|date:"Y-m-d" == now|date:"Y-m-d" %}
+                                        <span class="badge bg-danger ms-2">НОВАЯ</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ req.contact_person }}<br><small>{{ req.phone }}</small></td>
+                                <td>{{ req.created_at|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    {% if req.status == 'pending' %}
+                                        <span class="badge bg-warning text-dark">⏳ Ожидает</span>
+                                    {% elif req.status == 'in_work' %}
+                                        <span class="badge bg-info">🔄 В работе</span>
+                                    {% elif req.status == 'completed' %}
+                                        <span class="badge bg-success">✅ Выполнена</span>
+                                    {% elif req.status == 'rejected' %}
+                                        <span class="badge bg-danger">❌ Отклонена</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'request_detail' req.id %}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

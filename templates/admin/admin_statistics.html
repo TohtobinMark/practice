@@ -1,0 +1,101 @@
+<!-- templates/maps/admin_statistics.html -->
+{% extends 'base.html' %}
+
+{% block title %}Статистика - Админ панель{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-4" style="color: #7a1100;">Статистика системы</h2>
+    </div>
+</div>
+
+<!-- Карточки со статистикой -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <i class="bi bi-people display-3 text-primary"></i>
+                <h3 class="mt-2">{{ total_users }}</h3>
+                <p class="text-muted">Всего пользователей</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <i class="bi bi-geo-alt display-3 text-success"></i>
+                <h3 class="mt-2">{{ total_clients }}</h3>
+                <p class="text-muted">Активных клиентов</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <i class="bi bi-chat-dots display-3 text-warning"></i>
+                <h3 class="mt-2">{{ total_requests }}</h3>
+                <p class="text-muted">Всего заявок</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center shadow">
+            <div class="card-body">
+                <i class="bi bi-clock-history display-3 text-danger"></i>
+                <h3 class="mt-2">{{ pending_requests }}</h3>
+                <p class="text-muted">Ожидают обработки</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Детальная статистика -->
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Статусы заявок</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ⏳ Ожидают рассмотрения
+                        <span class="badge bg-warning rounded-pill" style="color: black;">{{ pending_requests }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        🔄 В работе
+                        <span class="badge bg-info rounded-pill" style="color: black;">{{ in_work_requests }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ✅ Выполнены
+                        <span class="badge bg-success rounded-pill" style="color: black;">{{ completed_requests }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ❌ Отклонены
+                        <span class="badge bg-danger rounded-pill" style="color: black;">{{ rejected_requests }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Типы бизнеса</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for type, count in business_types.items %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ type }}
+                        <span class="badge bg-secondary rounded-pill">{{ count }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

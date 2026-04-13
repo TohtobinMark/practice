@@ -1,5 +1,4 @@
-<style>
-    .custom-marker {
+.custom-marker {
         background: transparent;
         border: none;
     }
@@ -17,4 +16,205 @@
         font-size: 0.8rem;
         padding: 0.25rem 0.5rem;
     }
-</style>
+.toast-container-custom {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+}
+
+/* Стили уведомлений */
+.custom-toast {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
+    animation: slideInRight 0.3s ease-out;
+    margin-bottom: 10px;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Анимация исчезновения */
+.custom-toast.hiding {
+    animation: fadeOutRight 0.3s ease-out forwards;
+}
+
+@keyframes fadeOutRight {
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+/* Заголовок уведомления */
+.toast-header-custom {
+    padding: 12px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.toast-header-custom i {
+    font-size: 20px;
+}
+
+.toast-header-custom strong {
+    flex: 1;
+    font-size: 14px;
+}
+
+.toast-header-custom button {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: #999;
+    padding: 0;
+    line-height: 1;
+}
+
+.toast-header-custom button:hover {
+    color: #333;
+}
+
+/* Тело уведомления */
+.toast-body-custom {
+    padding: 12px 15px;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.4;
+}
+
+/* Цветовые схемы */
+.custom-toast.success .toast-header-custom {
+    background-color: #d4edda;
+    color: #155724;
+}
+.custom-toast.success .toast-header-custom i {
+    color: #28a745;
+}
+
+.custom-toast.error .toast-header-custom {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+.custom-toast.error .toast-header-custom i {
+    color: #dc3545;
+}
+
+.custom-toast.warning .toast-header-custom {
+    background-color: #fff3cd;
+    color: #856404;
+}
+.custom-toast.warning .toast-header-custom i {
+    color: #ffc107;
+}
+
+.custom-toast.info .toast-header-custom {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+.custom-toast.info .toast-header-custom i {
+    color: #17a2b8;
+}
+
+.custom-toast.confirm .toast-header-custom {
+    background-color: #d4edda;
+    color: #155724;
+}
+.custom-toast.confirm .toast-header-custom i {
+    color: #28a745;
+}
+    html {
+            scroll-behavior: smooth;
+        }
+        body {
+            padding-bottom: 50px;
+        }
+            #products-container .row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        margin-right: -15px !important;
+        margin-left: -15px !important;
+    }
+
+    #products-container {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    /* Основная сетка */
+    #products-container .row {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Убираем все старые стили колонок */
+    #products-container [class*="col-"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        flex: none !important;
+    }
+
+    /* Карточки занимают всю ширину */
+    #products-container .card {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+
+    /* Убираем лишние отступы */
+    #products-container .mb-4 {
+        margin-bottom: 0 !important;
+    }
+
+    /* Планшеты - 2 колонки */
+    @media (min-width: 768px) {
+        #products-container .row {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 20px !important;
+        }
+    }
+
+    /* Десктоп - 3 колонки */
+    @media (min-width: 992px) {
+        #products-container .row {
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 25px !important;
+        }
+    }
+
+    /* Заголовки секций должны быть на всю ширину */
+    #products-container .row.mt-3,
+    #products-container .row.mt-5 {
+        display: block !important;
+        width: 100% !important;
+        margin-top: 2rem !important;
+    }
+
+    /* Для заголовков */
+    #products-container .row.mt-3 .col-12,
+    #products-container .row.mt-5 .col-12 {
+        width: 100% !important;
+        padding: 0 !important;
+    }

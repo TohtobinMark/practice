@@ -1,0 +1,258 @@
+<!-- Модальное окно редактирования лицензии -->
+<div class="modal fade" id="edit-license-{{ item.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #7a1100; color: white;">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square"></i> Редактировать лицензию
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'edit_license' item.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Название программы *</label>
+                        <input type="text" class="form-control" name="name" value="{{ item.name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-control" name="description" rows="3">{{ item.description }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Цена (₽)</label>
+                            <input type="number" class="form-control" name="price" step="0.01" value="{{ item.price|floatformat:'.2f' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Скидка (%)</label>
+                            <input type="number" class="form-control" name="discount" min="0" max="100" value="{{ item.discount }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Текущее изображение</label>
+                        {% if item.image %}
+                            <div class="mb-2">
+                                <img src="{{ item.image.url }}" width="100" height="100" style="object-fit: cover; border-radius: 8px;">
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="delete_image" id="delete_image_license_{{ item.id }}">
+                                <label class="form-check-label" for="delete_image_license_{{ item.id }}">
+                                    Удалить текущее изображение
+                                </label>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Нет изображения</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Новое изображение</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #7a1100; border-color: #7a1100;">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно мягкого удаления лицензии (для всех сотрудников) -->
+<div class="modal fade" id="delete-license-{{ item.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Подтверждение удаления
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить лицензию <strong>{{ item.name }}</strong>?</p>
+                <p class="text-muted">Запись будет перемещена в корзину. Вы сможете восстановить ее позже.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'soft_delete_license' item.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-trash"></i> Переместить в корзину
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно жесткого удаления лицензии (только для суперпользователей) -->
+{% if user.is_superuser %}
+<div class="modal fade" id="hard-delete-license-{{ item.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Полное удаление
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите <strong>полностью удалить</strong> лицензию <strong>{{ item.name }}</strong>?</p>
+                <p class="text-danger">Это действие нельзя отменить. Запись будет удалена навсегда!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'hard_delete_license' item.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить навсегда
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Модальное окно редактирования сервиса -->
+<div class="modal fade" id="edit-service-{{ item.id }}" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #7a1100; color: white;">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square"></i> Редактировать сервис
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'edit_service' item.id %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Название сервиса *</label>
+                        <input type="text" class="form-control" name="name" value="{{ item.name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Категория *</label>
+                        <select class="form-select" name="category_id" required>
+                            <option value="">Выберите категорию</option>
+                            {% for category in service_categories %}
+                                <option value="{{ category.id }}"
+                                    {% if item.category.id == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Описание</label>
+                        <textarea class="form-control" name="description" rows="3">{{ item.description }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Цена (₽)</label>
+                            <input type="number" class="form-control" name="price" step="0.01" value="{{ item.price|floatformat:'.2f' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Скидка (%)</label>
+                            <input type="number" class="form-control" name="discount" min="0" max="100" value="{{ item.discount }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Текущее изображение</label>
+                        {% if item.image %}
+                            <div class="mb-2">
+                                <img src="{{ item.image.url }}" width="100" height="100" style="object-fit: cover; border-radius: 8px;">
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="delete_image" id="delete_image_service_{{ item.id }}">
+                                <label class="form-check-label" for="delete_image_service_{{ item.id }}">
+                                    Удалить текущее изображение
+                                </label>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">Нет изображения</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Новое изображение</label>
+                        <input type="file" class="form-control" name="image" accept="image/*">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary" style="background-color: #7a1100; border-color: #7a1100;">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно мягкого удаления сервиса (для всех сотрудников) -->
+<div class="modal fade" id="delete-service-{{ item.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Подтверждение удаления
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите удалить сервис <strong>{{ item.name }}</strong>?</p>
+                <p class="text-muted">Запись будет перемещена в корзину. Вы сможете восстановить ее позже.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'soft_delete_service' item.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-trash"></i> Переместить в корзину
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно жесткого удаления сервиса (только для суперпользователей) -->
+{% if user.is_superuser %}
+<div class="modal fade" id="hard-delete-service-{{ item.id }}" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> Полное удаление
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы уверены, что хотите <strong>полностью удалить</strong> сервис <strong>{{ item.name }}</strong>?</p>
+                <p class="text-danger">Это действие нельзя отменить. Запись будет удалена навсегда!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="post" action="{% url 'hard_delete_service' item.id %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить навсегда
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

@@ -1,3 +1,4 @@
+<!-- templates/registration/register.html -->
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
@@ -13,45 +14,49 @@
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
-                    
+
                     <div class="mb-3">
-                        <label class="form-label">Имя пользователя</label>
-                        <input type="text" name="username" class="form-control" required 
-                               placeholder="Придумайте логин">
+                        <label class="form-label">Имя пользователя *</label>
+                        {{ form.username }}
                         <div class="form-text">Только буквы, цифры и @/./+/-/_</div>
+                        {% if form.username.errors %}
+                            <div class="text-danger small">{{ form.username.errors }}</div>
+                        {% endif %}
                     </div>
-                    
+
                     <div class="mb-3">
-                        <label class="form-label">Пароль</label>
-                        <input type="password" name="password1" class="form-control" required
-                               placeholder="Введите пароль">
-                        <div class="form-text">
-                            Пароль должен содержать минимум 8 символов, не быть слишком простым.
-                        </div>
+                        <label class="form-label">Пароль *</label>
+                        {{ form.password1 }}
+                        <div class="form-text">Пароль должен содержать минимум 8 символов</div>
+                        {% if form.password1.errors %}
+                            <div class="text-danger small">{{ form.password1.errors }}</div>
+                        {% endif %}
                     </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label">Подтверждение пароля</label>
-                        <input type="password" name="password2" class="form-control" required
-                               placeholder="Повторите пароль">
+
+                    <div class="mb-3">
+                        <label class="form-label">Подтверждение пароля *</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small">{{ form.password2.errors }}</div>
+                        {% endif %}
                     </div>
-                    
-                    {% if form.errors %}
-                        <div class="alert alert-danger">
-                            {% for field, errors in form.errors.items %}
-                                {% for error in errors %}
-                                    <p>{{ error }}</p>
-                                {% endfor %}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    
-                    <button type="submit" class="btn btn-success w-100 mb-3">
+
+                    <div class="mb-3">
+                        <label class="form-label">Телефон</label>
+                        {{ form.phone }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Название компании</label>
+                        {{ form.company_name }}
+                    </div>
+
+                    <button type="submit" class="btn w-100 mb-3" style="background-color: #7a1100; color: #ffffff; border: none;">
                         <i class="bi bi-person-plus"></i> Зарегистрироваться
                     </button>
-                    
+
                     <div class="text-center">
-                        <a href="{% url 'login' %}" class="text-decoration-none">
+                        <a href="{% url 'login' %}" class="text-decoration-none" style="color: #7a1100;">
                             Уже есть аккаунт? Войти
                         </a>
                     </div>

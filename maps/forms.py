@@ -49,3 +49,57 @@ class DistributionRequestForm(forms.ModelForm):
 
         for field in ['need_1c_buh', 'need_1c_trade', 'need_1c_salary', 'need_cloud']:
             self.fields[field].widget.attrs.update({'class': 'form-check-input'})
+
+
+from django import forms
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .models import User
+
+class CustomUserCreationForm(UserCreationForm):
+    """Кастомная форма регистрации с использованием модели User"""
+
+    phone = forms.CharField(
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+7 (XXX) XXX-XX-XX'})
+    )
+    company_name = forms.CharField(
+        max_length=200,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Название компании'})
+    )
+
+    class Meta:
+        model = User  # Указываем вашу кастомную модель
+        fields = ('username', 'password1', 'password2', 'phone', 'company_name')
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'password1': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Настройка классов для полей
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+        self.fields['phone'].widget.attrs.update({'class': 'form-control'})
+        self.fields['company_name'].widget.attrs.update({'class': 'form-control'})
+
+        # Настройка меток
+        self.fields['phone'].label = 'Телефон'
+        self.fields['company_name'].label = 'Название компании'
+
+
+class CustomAuthenticationForm(AuthenticationForm):
+    """Кастомная форма аутентификации"""
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password'].widget.attrs.update({'class': 'form-control'})

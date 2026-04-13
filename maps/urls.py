@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('home/', views.home, name='home'),
     path('register/', views.register, name='register'),
     path('add/', views.add_location, name='add_location'),
     path('edit/<int:pk>/', views.edit_location, name='edit_location'),
@@ -11,4 +11,21 @@ urlpatterns = [
     path('my-requests/', views.my_requests, name='my_requests'),
     path('request/<int:pk>/', views.request_detail, name='request_detail'),
     path('cancel-request/<int:pk>/', views.cancel_request, name='cancel_request'),
+    path('admin-requests/', views.admin_requests, name='admin_requests'),
+    path('admin-statistics/', views.admin_statistics, name='admin_statistics'),
+    path('', views.custom_login, name='login'),
+    path('logout/', views.custom_logout, name='logout'),
+    path('add-service/', views.add_service, name='add_service'),
+    path('add-license/', views.add_license, name='add_license'),
+    path('edit-service/<int:pk>/', views.edit_service, name='edit_service'),
+    path('edit-license/<int:pk>/', views.edit_license, name='edit_license'),
+    path('delete-service/<int:pk>/', views.delete_service, name='delete_service'),
+    path('delete-license/<int:pk>/', views.delete_license, name='delete_license'),
+    path('license/<int:pk>/soft-delete/', views.soft_delete_license, name='soft_delete_license'),
+    path('service/<int:pk>/soft-delete/', views.soft_delete_service, name='soft_delete_service'),
+    path('license/<int:pk>/restore/', views.restore_license, name='restore_license'),
+    path('service/<int:pk>/restore/', views.restore_service, name='restore_service'),
+    path('license/<int:pk>/hard-delete/', views.hard_delete_license, name='hard_delete_license'),
+    path('service/<int:pk>/hard-delete/', views.hard_delete_service, name='hard_delete_service'),
+    path('deleted-items/', views.deleted_items, name='deleted_items'),
 ]

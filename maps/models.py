@@ -1,5 +1,28 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.utils import timezone
+
+
+class User(AbstractUser):
+    ROLE_CHOICES = [
+        ('guest', 'Гость'),
+        ('user', 'Авторизованный пользователь'),
+        ('admin', 'Администратор'),
+    ]
+    role = models.CharField('Роль', max_length=20, choices=ROLE_CHOICES, default='user')
+    phone = models.CharField('Телефон', max_length=20, blank=True)
+    company_name = models.CharField('Название компании', max_length=200, blank=True)
+
+    def __str__(self):
+        return f"{self.username} ({self.get_role_display()})"
+
+    def is_guest(self):
+        return self.role == 'guest' or not self.is_authenticated
+
+    def is_admin(self):
+        return self.role == 'admin' or self.is_staff
 
 class Location(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='locations')
@@ -122,6 +145,16 @@ def create_client_on_completed(sender, instance, **kwargs):
 class ServiceCategory(models.Model):
     name = models.CharField(max_length=200)
 
+class SoftDeleteManager(models.Manager):
+    """Менеджер, который не показывает мягко удаленные записи"""
+    def get_queryset(self):
+        return super().get_queryset().filter(delete_date__isnull=True)
+
+class AllObjectsManager(models.Manager):
+    """Менеджер, который показывает ВСЕ записи (включая удаленные)"""
+    def get_queryset(self):
+        return super().get_queryset()
+
 class Service(models.Model):
     """Сервисы 1С"""
     name = models.CharField('Название сервиса', max_length=200)
@@ -130,6 +163,20 @@ class Service(models.Model):
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, null=True)
     image = models.ImageField('Изображение', blank=True, null=True)
     discount = models.IntegerField()
+    delete_date = models.DateTimeField(null=True, blank=True, default=None, verbose_name="Дата удаления")
+    objects = SoftDeleteManager()  # По умолчанию - скрываем удаленные
+    all_objects = AllObjectsManager()
+    def soft_delete(self):
+        self.delete_date = timezone.now()
+        self.save()
+
+    def restore(self):
+        self.delete_date = None
+        self.save()
+
+    @property
+    def is_deleted(self):
+        return self.delete_date is not None
 
     def calculate_price_with_discount(self, price):
         if self.discount <= 0:
@@ -147,10 +194,25 @@ class License(models.Model):
     """Лицензии на программы 1С"""
     # Основная информация
     name = models.CharField('Название программы', max_length=200)
-    description = models.TextField('Описание программы')
+    description = models.TextField('Описание программы', max_length=200)
     price = models.DecimalField('Цена', max_digits=10, decimal_places=2, default=0)
     discount = models.IntegerField()
-    image = models.ImageField('Изображение')
+    image = models.ImageField('Изображение', blank=True, null=True)
+    delete_date = models.DateTimeField(null=True, blank=True, default=None, verbose_name="Дата удаления")
+    objects = SoftDeleteManager()  # По умолчанию - скрываем удаленные
+    all_objects = AllObjectsManager()
+    def soft_delete(self):
+        self.delete_date = timezone.now()
+        self.save()
+
+    def restore(self):
+        self.delete_date = None
+        self.save()
+
+    @property
+    def is_deleted(self):
+        return self.delete_date is not None
+
     def calculate_price_with_discount(self, price):
         if self.discount <= 0:
             return price

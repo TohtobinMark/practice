@@ -190,6 +190,10 @@ class Service(models.Model):
             return 'Бесплатно'
         return f"{int(self.price)} ₽"
 
+
+    def item_type(self):
+        return 'service'
+
 class License(models.Model):
     """Лицензии на программы 1С"""
     # Основная информация
@@ -199,11 +203,15 @@ class License(models.Model):
     discount = models.IntegerField()
     image = models.ImageField('Изображение', blank=True, null=True)
     delete_date = models.DateTimeField(null=True, blank=True, default=None, verbose_name="Дата удаления")
-    objects = SoftDeleteManager()  # По умолчанию - скрываем удаленные
-    all_objects = AllObjectsManager()
+    objects = models.Manager()  # Стандартный менеджер
+    all_objects = models.Manager()
     def soft_delete(self):
         self.delete_date = timezone.now()
         self.save()
+
+
+    def item_type(self):
+        return 'license'
 
     def restore(self):
         self.delete_date = None

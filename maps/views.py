@@ -1,5 +1,4 @@
 import json
-
 from django.db.models import Count
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404, redirect
@@ -7,6 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout, authenticate
 from django.conf import settings
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from .models import Location, DistributionRequest, Service, ServiceCategory, License, User
@@ -509,7 +509,7 @@ def delete_service(request, pk):
         messages.error(request, 'Доступ запрещен')
         return redirect('home')
 
-    if request.method == 'POST':  # Изменено с DELETE на POST
+    if request.method == 'POST':
         try:
             service = get_object_or_404(Service, pk=pk)
             if service.image:
@@ -529,7 +529,7 @@ def delete_license(request, pk):
         messages.error(request, 'Доступ запрещен')
         return redirect('home')
 
-    if request.method == 'POST':  # Изменено с DELETE на POST
+    if request.method == 'POST':
         try:
             license_item = get_object_or_404(License, pk=pk)
             if license_item.image:
@@ -590,11 +590,52 @@ def hard_delete_service(request, pk):
     messages.success(request, 'Сервис полностью удален')
     return redirect('deleted_items')
 
-# Страница корзины (показывает только удаленные записи)
+
 @staff_member_required
 def deleted_items(request):
+    # Получаем параметры
+    type_filter = request.GET.get('type', '')
+    sort = request.GET.get('sort', '-delete_date')
+
+    # Получаем удаленные записи - используем all_objects
+    deleted_licenses = License.all_objects.filter(delete_date__isnull=False)
+    deleted_services = Service.all_objects.filter(delete_date__isnull=False)
+    if sort == 'name':
+        deleted_licenses = deleted_licenses.order_by('name')
+        deleted_services = deleted_services.order_by('name')
+    elif sort == '-name':
+        deleted_licenses = deleted_licenses.order_by('-name')
+        deleted_services = deleted_services.order_by('-name')
+    elif sort == 'price':
+        deleted_licenses = deleted_licenses.order_by('price')
+        deleted_services = deleted_services.order_by('price')
+    elif sort == '-price':
+        deleted_licenses = deleted_licenses.order_by('-price')
+        deleted_services = deleted_services.order_by('-price')
+    elif sort == 'delete_date':
+        deleted_licenses = deleted_licenses.order_by('delete_date')
+        deleted_services = deleted_services.order_by('delete_date')
+    else:  # -delete_date
+        deleted_licenses = deleted_licenses.order_by('-delete_date')
+        deleted_services = deleted_services.order_by('-delete_date')
+
+    # Фильтрация по типу для all_items
+    if type_filter == 'license':
+        all_items = list(deleted_licenses)
+    elif type_filter == 'service':
+        all_items = list(deleted_services)
+    else:
+        # Объединяем списки
+        all_items = list(deleted_licenses) + list(deleted_services)
+
     context = {
-        'deleted_licenses': License.all_objects.filter(delete_date__isnull=False),
-        'deleted_services': Service.all_objects.filter(delete_date__isnull=False),
+        'all_items': all_items,
+        'deleted_licenses': deleted_licenses,
+        'deleted_services': deleted_services,
     }
+
+    # Если HTMX запрос, возвращаем только контент
+    if request.headers.get('HX-Request'):
+        return render(request, 'maps/deleted_items_content.html', context)
+
     return render(request, 'maps/deleted_items.html', context)
